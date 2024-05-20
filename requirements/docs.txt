@@ -1,4 +1,4 @@
-sphinx~=7.2.6
+sphinx~=7.3.7
 sphinx-autobuild==2021.3.14
 sphinx-copybutton~=0.5.2
 furo==2024.5.6
