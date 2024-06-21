@@ -26,6 +26,10 @@ Glossary
 Releases
 ---------------------
 
+v1.5.0
+=====================
+- Added an asterisk (*) to mandatory parameters.
+
 v1.4.10
 =====================
 - Fixed string casting sometimes being cast to a list type.

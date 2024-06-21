@@ -115,6 +115,17 @@ We will click on the "New" button located in the same row as the ``name`` label 
   :width: 15cm
 
 
+
+Mandatory & optional parameters
+-----------------------------------
+When a parameter has a default value assigned to it, it is considered an optional parameter.
+Parameters without a default value are considered mandatory. Mandatory parameters are marked
+with the asterisk (``*``) symbol.
+
+.. image:: ./images/mandatory_parameter_asterisk.png
+  :width: 15cm
+
+
 Defining strings
 =====================
 Clicking on "New -> str", as seen on the previous picture, will open up a new definition frame (page),
