@@ -8,11 +8,10 @@ from ..aliasing import *
 from ..dpi import *
 from ..utilities import *
 from ..storage import *
-from ..messagebox import Messagebox
 from ..extensions import extendable
 from ..doc import doc_category
+from ..backend import get_backend
 
-import tkinter.ttk as ttk
 import tkinter as tk
 import json
 
@@ -31,7 +30,7 @@ __all__ = (
 
 @extendable
 @doc_category("Object frames")
-class NewObjectFrameBase(ttk.Frame, ABC):
+class NewObjectFrameBase(ABC):
     """
     Base Frame for inside the :class:`ObjectEditWindow` that allows object definition.
 
@@ -62,6 +61,8 @@ class NewObjectFrameBase(ttk.Frame, ABC):
         check_parameters: bool = True,
         allow_save = True,
     ):
+        self.backend = get_backend()
+
         self.class_ = class_
         "The type (class) of object being creating"
 
@@ -89,7 +90,7 @@ class NewObjectFrameBase(ttk.Frame, ABC):
         self.editing_index = editing_index
         "The index of object being edited"
 
-        super().__init__(master=parent)
+        self.frame = self.backend.frame(master=parent)
         self.init_toolbar_frame(class_)
         self.init_main_frame()
 
@@ -188,12 +189,12 @@ class NewObjectFrameBase(ttk.Frame, ABC):
         return value
 
     def init_main_frame(self):
-        frame_main = ttk.Frame(self)
+        frame_main = self.backend.frame(self.frame)
         frame_main.pack(expand=True, fill=tk.BOTH)
         self.frame_main = frame_main
 
     def init_toolbar_frame(self, class_):
-        frame_toolbar = ttk.Frame(self)
+        frame_toolbar = self.backend.frame(self.frame)
         frame_toolbar.pack(fill=tk.X)
         self.frame_toolbar = frame_toolbar
 
@@ -211,7 +212,7 @@ class NewObjectFrameBase(ttk.Frame, ABC):
 
     def close_frame(self):
         if self.allow_save and self.modified:
-            resp = Messagebox.yesnocancel("Save?", "Do you wish to save?", master=self.origin_window)
+            resp = self.backend.message_box().yesnocancel("Save?", "Do you wish to save?", master=self.origin_window)
             if resp is not None:
                 if resp:
                     self.save()
@@ -267,7 +268,7 @@ class NewObjectFrameBase(ttk.Frame, ABC):
             self._update_ret_widget(object_)
             self._cleanup()
         except Exception as exc:
-            Messagebox.show_error(
+            self.backend.message_box().show_error(
                 "Saving error",
                 f"Could not save the object.\n{exc}",
                 parent=self.origin_window
@@ -285,6 +286,16 @@ class NewObjectFrameBase(ttk.Frame, ABC):
         Returns all GUI values.
         """
         raise NotImplementedError
+
+    # Tkinter wrapper methods
+    def pack(self, *args, **kwargs):
+        return self.frame.pack(*args, **kwargs)
+
+    def destroy(self, *args, **kwargs):
+        return self.frame.destroy(*args, **kwargs)
+
+    def pack_forget(self, *args, **kwargs):
+        return self.frame.pack_forget(*args, **kwargs)
 
     def _cleanup(self):
         self.origin_window.clean_object_edit_frame()
