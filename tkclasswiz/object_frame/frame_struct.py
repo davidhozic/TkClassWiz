@@ -151,12 +151,23 @@ class NewObjectFrameStruct(NewObjectFrameBase):
         dpi_5h = dpi_5 // 2
 
         labels: list[ttk.Label] = []
+
+        # Get parameters with default values.
+        # This is used for adding an asterisk to parameters without a default (mandatory parameters).
+        signature = inspect.signature(self.class_)
+        param_defaults = set([k for k, v in signature.parameters.items() if v.default is not v.empty])
+
         for (k, v) in annotations.items():
             # Init widgets
             entry_types = convert_types(v)
             frame_annotated = ttk.Frame(frame)
             frame_annotated.pack(fill=tk.BOTH, expand=True, pady=dpi_5)
-            label = ttk.Label(frame_annotated, text=k)
+
+            text = k
+            if k not in param_defaults:  # Parameter is mandatory
+                text = f'* {text}'
+
+            label = ttk.Label(frame_annotated, text=text)
             labels.append(label)
             label.pack(side="left")
 
