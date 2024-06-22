@@ -3,8 +3,6 @@ from typing import Optional
 
 from ..backend import get_backend
 from ..convert import ObjectInfo
-from ..storage import *
-
 
 class BaseToolTip(ABC):
     """

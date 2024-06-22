@@ -26,9 +26,16 @@ Glossary
 Releases
 ---------------------
 
-v1.5.0
+v2.0.0
 =====================
+- Support for multiple backends (tkinter-like libraries):
+
+  - Tkinter
+  - TTKBootstrap
+  - ...
+
 - Added an asterisk (*) to mandatory parameters.
+
 
 v1.4.10
 =====================

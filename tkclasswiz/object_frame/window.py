@@ -53,7 +53,7 @@ class ObjectEditWindow:
             self.frame_toolbar,
             text="Keep on top",
             variable=var,
-            command=lambda: self.attributes("-topmost", var.get()),
+            command=lambda: self.toplevel.attributes("-topmost", var.get()),
         ).pack(side="right")
         self.toplevel.attributes("-topmost", var.get())
 
@@ -97,7 +97,7 @@ class ObjectEditWindow:
             self.toplevel.destroy()
             self._closed = True
 
-    @gui_except()
+    @gui_except('toplevel')
     def _create_and_add_frame(
         self,
         class_: type,

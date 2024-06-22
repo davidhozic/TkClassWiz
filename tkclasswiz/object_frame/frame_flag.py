@@ -7,7 +7,6 @@ from ..utilities import *
 from ..convert import *
 from ..dpi import *
 
-from ..storage import *
 
 from .frame_base import *
 
@@ -15,8 +14,6 @@ import tkinter as tk
 
 
 __all__ = ("NewObjectFrameFlag",)
-
-T = TypeVar("T", ComboBoxObjects, ListBoxScrolled, ListBoxObjects)
 
 
 @doc_category("Object frames")
@@ -28,7 +25,7 @@ class NewObjectFrameFlag(NewObjectFrameBase):
     ------------
     class_: Flag
         The class we are defining for.
-    return_widget: T
+    return_widget
         The widget to insert the ObjectInfo into after saving.
     parent: TopLevel
         The parent window.
@@ -43,7 +40,7 @@ class NewObjectFrameFlag(NewObjectFrameBase):
     def __init__(
         self,
         class_: Flag,
-        return_widget: T,
+        return_widget,
         parent: Any = None,
         old_data: Flag = None,
         check_parameters: bool = True,
@@ -54,13 +51,13 @@ class NewObjectFrameFlag(NewObjectFrameBase):
         dpi_5 = dpi_scaled(5)
         dpi_10 = dpi_scaled(5)
         self.backend.label(self.frame_main, text="Current value").pack(anchor=tk.W)
-        w = PyObjectScalar(self.frame_main)
+        w = self.backend.object_scalar(self.frame_main)
         w.pack(fill=tk.X, pady=dpi_5)
 
         self.backend.separator(self.frame_main).pack(fill=tk.X, pady=dpi_10)
 
         self.backend.label(self.frame_main, text="Modify").pack(anchor=tk.W)
-        combo_select = ComboBoxObjects(self.frame_main, width=max(map(len, map(str, list(class_)))))
+        combo_select = self.backend.combobox(self.frame_main, width=max(map(len, map(str, list(class_)))))
         combo_select.set_values(list(class_))
         combo_select.pack(anchor=tk.W, pady=dpi_5)
         bnt_add_flag = self.backend.button(self.frame_main, text="Add flag", command=lambda: self._update_flag(combo_select.get(), True))
@@ -74,7 +71,7 @@ class NewObjectFrameFlag(NewObjectFrameBase):
 
         self.remember_gui_data()
 
-    @gui_except()
+    @gui_except("frame")
     def _update_flag(self, flag: Flag, set: bool):
         if isinstance(flag, str):
             raise ValueError(

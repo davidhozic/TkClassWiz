@@ -6,7 +6,6 @@ from enum import Enum, Flag
 from ..convert import *
 from ..dpi import *
 from ..utilities import *
-from ..storage import *
 from ..extensions import extendable
 from ..annotations import get_annotations, convert_types
 from ..deprecation import *
@@ -62,7 +61,7 @@ class NewObjectFrameStruct(NewObjectFrameBase):
     def __init__(
         self,
         class_,
-        return_widget: Union[ComboBoxObjects, ListBoxScrolled],
+        return_widget,
         parent = None,
         old_data: ObjectInfo = None,
         check_parameters: bool = True,
@@ -71,7 +70,7 @@ class NewObjectFrameStruct(NewObjectFrameBase):
         _annotations_override: dict = None,
     ):
         super().__init__(class_, return_widget, parent, old_data, check_parameters,allow_save)
-        self._map: Dict[str, Tuple[ComboBoxObjects, Iterable[type]]] = {}
+        self._map: Dict[str, Tuple[type, Iterable[type]]] = {}
         dpi_5 = dpi_scaled(5)
         dpi_5_h = dpi_5 // 2
 
@@ -121,7 +120,7 @@ class NewObjectFrameStruct(NewObjectFrameBase):
         bnt_menu_template.pack(side="left")
 
         # Nickname entry
-        self.entry_nick = HintedEntry(
+        self.entry_nick = self.backend.hinted_entry(
             "Object nickname",
             self.frame_main,
             state="normal" if self.allow_save else "disabled"
@@ -169,8 +168,8 @@ class NewObjectFrameStruct(NewObjectFrameBase):
 
             # Storage widget with the tooltip for displaying
             # nicknames on ObjectInfo instances
-            w = combo = ComboBoxObjects(frame_annotated)
-            ComboboxTooltip(w.combo)
+            w = combo = self.backend.combobox(frame_annotated)
+            ComboboxTooltip(w)
 
             bnt_new_menu = self.backend.menu_button(frame_annotated, text="New")
             menu_new = self.backend.menu(bnt_new_menu)
@@ -222,7 +221,7 @@ class NewObjectFrameStruct(NewObjectFrameBase):
         k: str,
         entry_types: list,
         menu,
-        combo: ComboBoxObjects,
+        combo,
         additional_values: dict
     ):
         "Fill ComboBox values based on types in ``entry_types`` and create New <object_type> buttons"
@@ -288,7 +287,6 @@ class NewObjectFrameStruct(NewObjectFrameBase):
             Don't check the correctness of given parameters.
         """
         map_ = {}
-        widget: ComboBoxObjects
         for attr, (widget, types_) in self._map.items():
             value = widget.get()
             # Either it's a string needing conversion or a Literal constant not to be converted
@@ -335,8 +333,8 @@ class NewObjectFrameStruct(NewObjectFrameBase):
 
         return values
 
-    @gui_except()
-    def _edit_selected(self, key: str, combo: ComboBoxObjects):
+    @gui_except('frame')
+    def _edit_selected(self, key: str, combo):
         selection = combo.get()
 
         # Convert selection to any of the allowed types.
@@ -370,8 +368,8 @@ class NewObjectFrameStructView(NewObjectFrameStruct):
         annotations = {k: v.class_ if isinstance(v, ObjectInfo) else type(v) for k, v in old_data.data.items()}
         super().__init__(class_, *args, **kwargs, _annotations_override=annotations)
 
-    @gui_except()
-    def _edit_selected(self, key: str, combo: ComboBoxObjects):
+    @gui_except('frame')
+    def _edit_selected(self, key: str, combo):
         selection = combo.get()
 
         # Convert selection to any of the allowed types.

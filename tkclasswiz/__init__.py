@@ -1,12 +1,15 @@
 """
 TkClassWizard - Library for graphically defining objects based on class annotations.
-Works with Tkinter / TTKBootstrap.
+Works with backends:
+
+- Tkinter
+- TTkBootstrap
 
 -------------------
 
 MIT License
 
-Copyright (c) 2023 David Hozic
+Copyright (c) 2024 David Hozic
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -27,7 +30,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-__version__ = "1.5.0"
+__version__ = "2.0.0"
 
 
 from .object_frame import *
@@ -35,7 +38,7 @@ from .annotations import *
 from .cache import *
 from .convert import *
 from .extensions import *
-from .storage import *
 from .utilities import *
 from .aliasing import *
 from .deprecation import *
+from .backend import get_backend

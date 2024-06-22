@@ -2,8 +2,9 @@
 Backend package.
 Allows different libraries to work with TkClassWizard.
 """
-from .base import BackendBase
 from .tkinter import BackendTkinter
+from .base import BackendBase
+
 
 __all__ = ("set_backend", "get_backend")
 

@@ -406,7 +406,6 @@ def convert_to_dict(d: Union[ObjectInfo, List[ObjectInfo], Any]):
     return d
 
 
-
 @cache_result()
 @doc_category("Conversion")
 def convert_from_dict(d: Union[dict, List[dict], Any]) -> ObjectInfo:

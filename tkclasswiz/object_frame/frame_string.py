@@ -1,7 +1,6 @@
 
 from typing import Any
 
-from ..storage import *
 from .frame_base import *
 from ..extensions import extendable
 from ..doc import doc_category
@@ -30,7 +29,7 @@ class NewObjectFrameString(NewObjectFrameBase):
         allow_save=True
     ):
         super().__init__(class_, return_widget, parent, old_data, check_parameters, allow_save)
-        self.storage_widget = Text(self.frame_main, undo=True, maxundo=TEXT_MAX_UNDO)
+        self.storage_widget = self.backend.text(self.frame_main, undo=True, maxundo=TEXT_MAX_UNDO)
         self.storage_widget.pack(fill=tk.BOTH, expand=True)
 
         if old_data is not None:

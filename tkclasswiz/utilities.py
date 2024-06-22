@@ -2,10 +2,9 @@
 Utility module.
 """
 from typing import Any, Callable, Tuple
-from functools import wraps, partialmethod
+from functools import wraps
 
 from .doc import doc_category, DOCUMENTATION_MODE
-from .backend import get_backend
 
 import importlib
 
@@ -75,14 +74,19 @@ def gui_except(window = None):
                 return wrapper(instance)
             
             def __call__(self, *args: Any, **kwargs: Any) -> Any:
-                parent = window or self.inst
+                if isinstance(window, str):
+                    parent_ = getattr(self.inst, window)
+                else:
+                    parent_ = window or self.inst
+
                 try:
                     if self.inst is not None:
                         args = (self.inst, *args)
 
                     return fnc(*args, **kwargs)
                 except Exception as exc:
-                    get_backend().message_box().show_error(f"Exception in {fnc.__name__}", str(exc), parent=parent)
+                    from .backend import get_backend  # Prevents looped import
+                    get_backend().message_box().show_error(f"Exception in {fnc.__name__}", str(exc), parent=parent_)
 
         return wrapper()
 
@@ -129,14 +133,14 @@ def gui_confirm_action(parent = None):
                 else:
                     parent_ = parent or self.bind
 
+                from .backend import get_backend  # Prevents looped import
                 result = get_backend().message_box().yesnocancel("Confirm", "Are you sure?", parent=parent_)
-
                 if self.bind is not None:
                     args = (self.bind, *args)  # self, *args
 
                 if result:
                     return fnc(*args, **kwargs)
-                
+
             def __get__(self, instance, cls = None):
                 return wrapper(instance)
 

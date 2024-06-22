@@ -7,7 +7,6 @@ from ..convert import *
 from ..aliasing import *
 from ..dpi import *
 from ..utilities import *
-from ..storage import *
 from ..extensions import extendable
 from ..doc import doc_category
 from ..backend import get_backend
@@ -55,7 +54,7 @@ class NewObjectFrameBase(ABC):
     def __init__(
         self,
         class_: Any,
-        return_widget: Union[ComboBoxObjects, ListBoxObjects, None],
+        return_widget,
         parent = None,
         old_data: Any = None,
         check_parameters: bool = True,
@@ -311,7 +310,7 @@ class NewObjectFrameBase(ABC):
                 ret_widget.delete(ind)
 
         self.return_widget.insert(ind, new)
-        if isinstance(self.return_widget, ComboBoxObjects):
+        if isinstance(self.return_widget, type(self.backend.combobox())):
             self.return_widget.current(ind)
         else:
             self.return_widget.select_clear("0", tk.END)

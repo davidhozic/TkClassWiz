@@ -11,7 +11,6 @@ from ..dpi import *
 from ..extensions import extendable
 from .tooltip import ListboxTooltip
 from .frame_base import *
-from ..storage import *
 
 import tkinter as tk
 
@@ -66,8 +65,8 @@ class NewObjectFrameIterable(NewObjectFrameBase):
     ):
         dpi_5 = dpi_scaled(5)
         super().__init__(class_, return_widget, parent, old_data, check_parameters, allow_save)
-        self.storage_widget = w = ListBoxScrolled(self.frame_main, height=20)
-        ListboxTooltip(self.storage_widget.listbox.listbox, 0)
+        self.storage_widget = w = self.backend.scrolled_listbox(self.frame_main, height=20)
+        ListboxTooltip(self.storage_widget.listbox, 0)
 
         frame_edit_remove = self.backend.frame(self.frame_main, padding=(dpi_5, 0))
         frame_edit_remove.pack(side="right")
@@ -175,8 +174,8 @@ class NewObjectFrameIterableView(NewObjectFrameIterable):
     def __init__(self, class_: Any, return_widget: Any, parent=None, old_data: list = None, check_parameters: bool = True, allow_save=True):
         dpi_5 = dpi_scaled(5)
         super(NewObjectFrameBase, self).__init__(class_, return_widget, parent, old_data, check_parameters, allow_save)
-        self.storage_widget = w = ListBoxScrolled(self.frame_main, height=20)
-        ListboxTooltip(self.storage_widget, 0)
+        self.storage_widget = w = self.backend.scrolled_listbox(self.frame_main, height=20)
+        ListboxTooltip(self.storage_widget.listbox, 0)
 
         frame_edit_remove = self.backend.frame(self.frame_main, padding=(dpi_5, 0))
         frame_edit_remove.pack(side="right")
