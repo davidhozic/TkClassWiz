@@ -7,7 +7,6 @@ from ..convert import *
 from ..dpi import *
 from ..utilities import *
 from ..storage import *
-from ..messagebox import Messagebox
 from ..extensions import extendable
 from ..annotations import get_annotations, convert_types
 from ..deprecation import *
@@ -94,7 +93,7 @@ class NewObjectFrameStruct(NewObjectFrameBase):
             with open(filename, "w", encoding="utf-8") as file:
                 json.dump(json_data, file, indent=2)
 
-            Messagebox.show_info("Finished", f"Saved to {filename}", parent=self)
+            self.backend.message_box().show_info("Finished", f"Saved to {filename}", parent=self)
 
         @gui_except(window=self)
         def load_template():
@@ -171,7 +170,7 @@ class NewObjectFrameStruct(NewObjectFrameBase):
             # Storage widget with the tooltip for displaying
             # nicknames on ObjectInfo instances
             w = combo = ComboBoxObjects(frame_annotated)
-            ComboboxTooltip(w)
+            ComboboxTooltip(w.combo)
 
             bnt_new_menu = self.backend.menu_button(frame_annotated, text="New")
             menu_new = self.backend.menu(bnt_new_menu)
@@ -268,10 +267,10 @@ class NewObjectFrameStruct(NewObjectFrameBase):
 
             val = data[attr]
 
-            if val not in widget["values"]:
+            if val not in widget.get_values():
                 widget.insert(tk.END, val)
 
-            widget.current(widget["values"].index(val))
+            widget.current(widget.get_values().index(val))
 
         if old_data.nickname:
             self.entry_nick.insert('0', old_data.nickname)

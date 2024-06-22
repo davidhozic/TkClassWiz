@@ -73,21 +73,16 @@ class BaseToolTip(ABC):
 
 class ListboxTooltip(BaseToolTip):
     def __init__(self, widget, timeout_ms: int = 500):
-        if isinstance(widget, ListBoxScrolled):
-            widget = widget.listbox
-
         super().__init__(widget, timeout_ms)
         self._widget.bind("<<ListboxSelect>>", self._schedule)
         self._widget.bind("<Leave>", self._cancel_schedule)
         self.start_y = 0
 
     def _get_value(self):
-        value = self._widget.get()
         selection = self._widget.curselection()
         if len(selection) != 1:
             return
-
-        value = value[self._widget.current()]
+        value = self._widget.get(selection[0])
         return str(value)
 
     def _show_tooltip(self, event):

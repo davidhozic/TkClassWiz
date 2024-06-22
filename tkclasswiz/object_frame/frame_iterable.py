@@ -8,7 +8,6 @@ from ..utilities import *
 from ..convert import *
 from ..dpi import *
 
-from ..messagebox import Messagebox
 from ..extensions import extendable
 from .tooltip import ListboxTooltip
 from .frame_base import *
@@ -68,7 +67,7 @@ class NewObjectFrameIterable(NewObjectFrameBase):
         dpi_5 = dpi_scaled(5)
         super().__init__(class_, return_widget, parent, old_data, check_parameters, allow_save)
         self.storage_widget = w = ListBoxScrolled(self.frame_main, height=20)
-        ListboxTooltip(self.storage_widget, 0)
+        ListboxTooltip(self.storage_widget.listbox.listbox, 0)
 
         frame_edit_remove = self.backend.frame(self.frame_main, padding=(dpi_5, 0))
         frame_edit_remove.pack(side="right")
@@ -165,7 +164,7 @@ class NewObjectFrameIterable(NewObjectFrameBase):
             else:
                 self.new_object_frame(type(object_), self.storage_widget, old_data=object_)
         else:
-            Messagebox.show_error("Selection error", "Select ONE item!", parent=self)
+            self.backend.message_box().show_error("Selection error", "Select ONE item!", parent=self.frame)
 
 
 class NewObjectFrameIterableView(NewObjectFrameIterable):

@@ -47,7 +47,7 @@ class BackendTkinter(BackendBase):
 
     def label(self, *args, **kwargs):
         return ttk.Label(*args, **kwargs)
-    
+
     def separator(self, *args, **kwargs):
         return ttk.Separator(*args, **kwargs)
 
@@ -65,7 +65,7 @@ class BackendTkinter(BackendBase):
 
     def toplevel(self, *args, **kwargs):
         return tk.Toplevel(*args, **kwargs)
-    
+
     def style(self, *args, **kwargs):
         return ttk.Style(*args, **kwargs)
 
@@ -74,3 +74,18 @@ class BackendTkinter(BackendBase):
 
     def checkbutton(self, *args, **kwargs):
         return tk.Checkbutton(*args, **kwargs)
+
+    def entry(self, *args, **kwargs):
+        return ttk.Entry(*args, **kwargs)
+
+    def text(self, *args, **kwargs):
+        return tk.Text(*args, **kwargs)
+
+    def scrollbar(self, *args, **kwargs):
+        return ttk.Scrollbar(*args, **kwargs)
+
+    def listbox(self, *args, **kwargs):
+        return tk.Listbox(*args, **kwargs)
+
+    def combobox(self, *args, **kwargs):
+        return ttk.Combobox(*args, **kwargs)

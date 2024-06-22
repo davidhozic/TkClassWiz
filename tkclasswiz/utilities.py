@@ -2,11 +2,12 @@
 Utility module.
 """
 from typing import Any, Callable, Tuple
-from functools import wraps
+from functools import wraps, partialmethod
+
+from .doc import doc_category, DOCUMENTATION_MODE
+from .backend import get_backend
 
 import importlib
-from .messagebox import Messagebox
-from .doc import doc_category, DOCUMENTATION_MODE
 
 
 __all__ = (
@@ -81,7 +82,7 @@ def gui_except(window = None):
 
                     return fnc(*args, **kwargs)
                 except Exception as exc:
-                    Messagebox.show_error(f"Exception in {fnc.__name__}", str(exc), parent=parent)
+                    get_backend().message_box().show_error(f"Exception in {fnc.__name__}", str(exc), parent=parent)
 
         return wrapper()
 
@@ -123,7 +124,12 @@ def gui_confirm_action(parent = None):
                 self.bind = bind
 
             def __call__(self, *args, **kwargs):
-                result = Messagebox.yesnocancel("Confirm", "Are you sure?", parent=parent or self.bind)
+                if isinstance(parent, str):
+                    parent_ = getattr(self.bind, parent)
+                else:
+                    parent_ = parent or self.bind
+
+                result = get_backend().message_box().yesnocancel("Confirm", "Are you sure?", parent=parent_)
 
                 if self.bind is not None:
                     args = (self.bind, *args)  # self, *args

@@ -61,7 +61,7 @@ class NewObjectFrameFlag(NewObjectFrameBase):
 
         self.backend.label(self.frame_main, text="Modify").pack(anchor=tk.W)
         combo_select = ComboBoxObjects(self.frame_main, width=max(map(len, map(str, list(class_)))))
-        combo_select["values"] = list(class_)
+        combo_select.set_values(list(class_))
         combo_select.pack(anchor=tk.W, pady=dpi_5)
         bnt_add_flag = self.backend.button(self.frame_main, text="Add flag", command=lambda: self._update_flag(combo_select.get(), True))
         bnt_add_flag.pack(anchor=tk.W)

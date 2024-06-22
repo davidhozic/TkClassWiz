@@ -57,3 +57,23 @@ class BackendBase(ABC):
     @abstractmethod
     def checkbutton(self, *args, **kwargs) -> Any:
         "Creates a Tkinter-equivalent boolean Checkbutton."
+
+    @abstractmethod
+    def entry(self, *args, **kwargs) -> Any:
+        "Creates a Tkinter-equivalent entry."
+
+    @abstractmethod
+    def text(self, *args, **kwargs) -> Any:
+        "Creates a Tkinter-equivalent text."
+
+    @abstractmethod
+    def scrollbar(self, *args, **kwargs) -> Any:
+        "Creates a Tkinter-equivalent scrollbar."
+
+    @abstractmethod
+    def listbox(self, *args, **kwargs) -> Any:
+        "Creates a Tkinter-equivalent listbox."
+
+    @abstractmethod
+    def combobox(self, *args, **kwargs) -> Any:
+        "Creates a Tkinter-equivalent combobox."

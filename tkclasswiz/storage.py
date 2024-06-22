@@ -4,11 +4,10 @@ Modules contains storage container widgets.
 from typing import Union, Any, List, Iterable, Callable
 
 from .utilities import gui_confirm_action
-from .messagebox import Messagebox
 from .convert import ObjectInfo
 from .doc import doc_category
+from .backend import get_backend
 
-import tkinter.ttk as ttk
 import tkinter as tk
 
 
@@ -32,59 +31,64 @@ class GLOBAL:
 
 
 @doc_category("Storage widgets")
-class HintedEntry(ttk.Entry):
+class HintedEntry:
     """
     A hinted tkinter.ttk.Entry.
     The entry accepts the parameter ``hint`` (The hinting text which will be displayed in gray)
     and the original tkinter.ttk.Entry parameters.
     """
     def __init__(self, hint: str, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        self.backend = get_backend()
+        self.entry = self.backend.entry(*args, **kwargs)
         self.hint = hint
         self._set_hint()
-        self.bind("<FocusIn>", self._focus_in)
-        self.bind("<FocusOut>", self._focus_out)
+        self.entry.bind("<FocusIn>", self._focus_in)
+        self.entry.bind("<FocusOut>", self._focus_out)
 
     def get(self) -> str:
-        if str(self["foreground"]) == "gray":
+        if str(self.entry["foreground"]) == "gray":
             return ''
 
-        return super().get()
+        return self.entry.get()
+
+    def pack(self, *args, **kwargs):
+        return self.entry.pack(*args, **kwargs)
 
     def insert(self, *args, **kwargs) -> None:
-        state = self.cget("state")
-        self.config(state="enabled")
-        if str(self["foreground"]) == "gray":
-            self.delete('0', tk.END)
+        state = self.entry.cget("state")
+        self.entry.config(state="enabled")
+        if str(self.entry["foreground"]) == "gray":
+            self.entry.delete('0', tk.END)
 
-        _ret = super().insert(*args, **kwargs)
-        self["foreground"] = "black"
-        self.config(state=state)
+        _ret = self.entry.insert(*args, **kwargs)
+        self.entry["foreground"] = "black"
+        self.entry.config(state=state)
         return _ret
 
     def _set_hint(self):
         self.insert('0', self.hint)
-        self["foreground"] = "gray"
+        self.entry["foreground"] = "gray"
 
-    def _focus_in(self, event: tk.Event):
-        if str(self["foreground"]) == "gray":
-            self["foreground"] = 'black'
-            self.delete('0', tk.END)
+    def _focus_in(self, event):
+        if str(self.entry["foreground"]) == "gray":
+            self.entry["foreground"] = 'black'
+            self.entry.delete('0', tk.END)
 
-    def _focus_out(self, event: tk.Event):
-        if not super().get():
+    def _focus_out(self, event):
+        if not self.entry.get():
             self._set_hint()
 
 
 @doc_category("Storage widgets")
-class PyObjectScalar(ttk.Frame):
+class PyObjectScalar:
     """
     Represents a single storage widget for a Python object.
     """
     def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
+        self.backend = get_backend()
+        self.frame = self.backend.frame(*args, **kwargs)
         self.element = None
-        self.display = ttk.Entry(self, state="readonly")
+        self.display = self.backend.entry(self.frame, state="readonly")
         self.display.pack(fill=tk.BOTH, expand=True)
 
     def get(self) -> object:
@@ -103,21 +107,33 @@ class PyObjectScalar(ttk.Frame):
         self.display.config(state="readonly")
         self.element = value
 
+    def pack(self, *args, **kwargs):
+        self.frame.pack(*args, **kwargs)
+
 
 @doc_category("Storage widgets")
-class Text(tk.Text):
+class Text:
     """
     Modified version of :class`tkinter.Text`, which replaces the original
     ``get`` method to contain no parameters and instead return the entire text stripped.
     This is for compatibility with other storage widgets.
     """
+    def __init__(self, *args, **kwargs) -> None:
+        self.backend = get_backend()
+        self.text = self.backend.text(*args, **kwargs)
+
     def get(self) -> str:
         "Returns entire text stripped."
-        return super().get("1.0", tk.END).strip()
+        return self.text.get("1.0", tk.END).strip()
+    
+    def pack(self, *args, **kwargs):
+        return self.text.pack(*args, **kwargs)
 
+    def insert(self, *args, **kwargs):
+        return self.text.insert(*args, **kwargs)
 
 @doc_category("Storage widgets")
-class ListBoxObjects(tk.Listbox):
+class ListBoxObjects:
     """
     Modified version of :class:`tkinter.Listbox`, which:
 
@@ -127,18 +143,19 @@ class ListBoxObjects(tk.Listbox):
     - Modifies the ``insert`` method to insert original objects instead of text
     """
     def __init__(self, *args, **kwargs):
-        self._original_items = []
-        super().__init__(*args, **kwargs)
-        self.configure(selectmode=tk.EXTENDED)
+        self.backend = get_backend()
+        self.listbox = self.backend.listbox(*args, **kwargs)
+        self.listbox.configure(selectmode=tk.EXTENDED)
 
-        self.bind("<Control-c>", lambda e: self.save_to_clipboard())
-        self.bind("<BackSpace>", lambda e: self.delete_selected())
-        self.bind("<Delete>", lambda e: self.delete_selected())
-        self.bind("<Control-v>", lambda e: self.paste_from_clipboard())
+        self._original_items = []
+        self.listbox.bind("<Control-c>", lambda e: self.save_to_clipboard())
+        self.listbox.bind("<BackSpace>", lambda e: self.delete_selected())
+        self.listbox.bind("<Delete>", lambda e: self.delete_selected())
+        self.listbox.bind("<Control-v>", lambda e: self.paste_from_clipboard())
 
     def current(self) -> int:
         "Returns index of the first currently selected element or -1 if none selected."
-        selection = self.curselection()
+        selection = self.listbox.curselection()
         return selection[0] if len(selection) else -1
 
     def get(self, first: int = 0, last: int = None) -> list:
@@ -152,7 +169,7 @@ class ListBoxObjects(tk.Listbox):
         """
         Inserts ``elements`` to ``index``. The ``index`` must be a numerical index or tkinter.END ('end').
         """
-        _ret = super().insert(index, *elements)
+        _ret = self.listbox.insert(index, *elements)
         if isinstance(index, str):
             index = len(self._original_items) if index == "end" else 0
 
@@ -165,7 +182,7 @@ class ListBoxObjects(tk.Listbox):
         """
         Delete elements that have the index in ``indexes``
         """
-        def create_ranges() -> List[tuple]:
+        def create_ranges():
             start_i = indexes[0]
             len_indexes = len(indexes)
             for i in range(1, len_indexes):
@@ -187,7 +204,7 @@ class ListBoxObjects(tk.Listbox):
 
         indexes = sorted(list(indexes))
         for range_ in create_ranges():
-            super().delete(*range_)
+            self.listbox.delete(*range_)
             del self._original_items[range_[0]:range_[1] + 1]
 
     def count(self) -> int:
@@ -196,34 +213,34 @@ class ListBoxObjects(tk.Listbox):
         """
         return len(self._original_items)
 
-    @gui_confirm_action()
+    @gui_confirm_action("listbox")
     def delete_selected(self):
         """
         Deletes selected elements.
         """
-        sel: List[int] = self.curselection()
+        sel: List[int] = self.listbox.curselection()
         if len(sel):
             self.delete(*sel)
         else:
-            Messagebox.show_error("Empty list!", "Select atleast one item!", parent=self)
+            self.backend.message_box().show_error("Empty list!", "Select atleast one item!", parent=self.listbox)
 
     def clear(self) -> None:
         """
         Deletes all the elements inside the internal list.
         """
-        super().delete(0, tk.END)
+        self.listbox.delete(0, tk.END)
         self._original_items.clear()
 
     def save_to_clipboard(self):
         """
         Saves selection to clipboard.
         """
-        selection = self.curselection()
+        selection = self.listbox.curselection()
         if len(selection):
             object_: Union[ObjectInfo, Any] = self.get()[min(selection):max(selection) + 1]
             GLOBAL.clipboard = object_ if len(selection) > 1 else object_[0]
         else:
-            Messagebox.show_error("Empty list!", "Select atleast one item!", parent=self)
+            self.backend.message_box().show_error("Empty list!", "Select atleast one item!", parent=self.listbox)
 
     def paste_from_clipboard(self):
         """
@@ -255,7 +272,7 @@ class ListBoxObjects(tk.Listbox):
         self.delete(index)
         index += direction
         self.insert(index, value)
-        self.selection_set(index)
+        self.listbox.selection_set(index)
 
     def move_selection(self, direction: int):
         """
@@ -265,38 +282,86 @@ class ListBoxObjects(tk.Listbox):
         if len(selection := self.curselection()) == 1:
             self.move(selection[0], direction)
         else:
-            Messagebox.show_error("Selection error", "Select ONE item!", parent=self)
+            self.backend.message_box().show_error("Selection error", "Select ONE item!", parent=self.listbox)
+
+    def yview(self, *args, **kwargs):
+        return self.listbox.yview(*args, **kwargs)
+    
+    def pack(self, *args, **kwargs):
+        return self.listbox.pack(*args, **kwargs)
+    
+    def config(self, *args, **kwargs):
+        return self.listbox.config(*args, **kwargs)
+    
+    def select_clear(self, *args, **kwargs):
+        self.listbox.select_clear(*args, **kwargs)
+    
+    def selection_set(self, *args, **kwargs):
+        self.listbox.selection_set(*args, **kwargs)
+
+    def curselection(self):
+        return self.listbox.curselection()
 
 
 @doc_category("Storage widgets")
-class ListBoxScrolled(ttk.Frame):
+class ListBoxScrolled:
     """
     A scrollable version of :class:`tkclasswiz.storage.ListBoxObjects`.
     All the methods are the same as :class:`tkclasswiz.storage.ListBoxObjects`.
     """
     def __init__(self, parent, *args, **kwargs):
-        super().__init__(parent)
-        listbox = ListBoxObjects(self, *args, **kwargs)
+        self.backend = get_backend()
+        self.frame = self.backend.frame(parent)
+        listbox = ListBoxObjects(self.frame, *args, **kwargs)
         self.listbox = listbox
 
         listbox.pack(side="left", fill=tk.BOTH, expand=True)
 
-        scrollbar = ttk.Scrollbar(self)
+        scrollbar = self.backend.scrollbar(self.listbox.listbox)
         scrollbar.pack(side=tk.RIGHT, fill=tk.BOTH)
         scrollbar.config(command=listbox.yview)
 
         listbox.config(yscrollcommand=scrollbar.set)
 
-    def __getattr__(self, name: str):
-        """
-        Getter method that only get's called if the current
-        implementation does not have the requested attribute.
-        """
-        return getattr(self.listbox, name)
+    def pack(self, *args, **kwargs):
+        self.frame.pack(*args, **kwargs)
+
+    def save_to_clipboard(self):
+        return self.listbox.save_to_clipboard()
+
+    def paste_from_clipboard(self):
+        return self.listbox.paste_from_clipboard()
+    
+    def delete_selected(self):
+        return self.listbox.delete_selected()
+
+    def get(self, *args, **kwargs):
+        return self.listbox.get(*args, **kwargs)
+
+    def count(self):
+        return self.listbox.count()
+    
+    def insert(self, *args, **kwargs):
+        return self.listbox.insert(*args, **kwargs)
+    
+    def select_clear(self, *args, **kwargs):
+        return self.listbox.select_clear(*args, **kwargs)
+    
+    def selection_set(self, *args, **kwargs):
+        return self.listbox.selection_set(*args, **kwargs)
+    
+    def curselection(self):
+        return self.listbox.curselection()
+
+    def current(self):
+        return self.listbox.current()
+
+    def delete(self, *indexes: int):
+        return self.listbox.delete(*indexes)
 
 
 @doc_category("Storage widgets")
-class ComboBoxObjects(ttk.Combobox):
+class ComboBoxObjects:
     """
     Modified version of :class:`tkinter.Combobox`, which:
 
@@ -306,7 +371,11 @@ class ComboBoxObjects(ttk.Combobox):
     """
     def __init__(self, *args, **kwargs):
         self._original_items = []
-        super().__init__(*args, **kwargs)
+        self.backend = get_backend()
+        self.combo = self.backend.combobox(*args, **kwargs)
+
+    def _update_combo(self):
+        self.combo["values"] = [str(x)[:200] for x in self._original_items]
 
     def save_to_clipboard(self):
         """
@@ -323,23 +392,35 @@ class ComboBoxObjects(ttk.Combobox):
         if value not in self._original_items:
             self.insert(tk.END, value)
         
-        self.current(self._original_items.index(value))
+        self.combo.current(self._original_items.index(value))
+
+    def set_values(self, values: list):
+        """
+        Sets the values of internal Combobox to ``values``.
+        """
+        self._original_items = values
+        self._update_combo()
+
+    def get_values(self) -> list:
+        """
+        Returns all the values inside the internal Combobox.
+        """
+        return self._original_items
 
     def get(self) -> Any:
         "Returns selected element"
-        index = self.current()
+        index = self.combo.current()
         if isinstance(index, int) and index >= 0:
             return self._original_items[index]
 
-        return super().get()
+        return self.combo.get()
 
     def delete(self, index: int) -> None:
         """
         Removes the element at ``index``.
         """
-        self["values"].pop(index)
-        super().delete(index)
-        self["values"] = self["values"]  # Update the text list, NOT a code mistake
+        self._original_items.pop(index)
+        self._update_combo()
 
     def insert(self, index: Union[int, str], element: Any) -> None:
         """
@@ -350,28 +431,21 @@ class ComboBoxObjects(ttk.Combobox):
         else:
             self._original_items.insert(index, element)
 
-        self["values"] = self._original_items
+        self._update_combo()
+
+    def current(self, *args, **kwargs):
+        return self.combo.current(*args, **kwargs)
 
     def count(self) -> int:
         "Returns number of elements inside the ComboBox"
         return len(self._original_items)
-
-    def __setitem__(self, key: str, value) -> None:
-        if key == "values":
-            self._original_items = list(value)
-            value = [str(x)[:200] for x in value]
-
-        return super().__setitem__(key, value)
-
-    def __getitem__(self, key: str):
-        if key == "values":
-            return self._original_items
-
-        return super().__getitem__(key)
+    
+    def pack(self, *args, **kwargs):
+        self.combo.pack(*args, **kwargs)
 
 
 @doc_category("Storage widgets")
-class ComboEditFrame(ttk.Frame):
+class ComboEditFrame:
     """
     Frame, which combines :class:`tkclasswiz.storage.ComboBoxObjects` and an edit button.
     The edit button will open an object edit window / wizard and load in the old object (ObjectInfo) data.
@@ -403,9 +477,10 @@ class ComboEditFrame(ttk.Frame):
         *args,
         **kwargs
     ):
-        super().__init__(*args, master=master, **kwargs)
-        combo = ComboBoxObjects(self)
-        ttk.Button(self, text="Edit", command=self._edit).pack(side="right")
+        self.backend = get_backend()
+        self.frame = self.backend.frame(*args, master=master, **kwargs)
+        combo = ComboBoxObjects(self.frame)
+        self.backend.button(self, text="Edit", command=self._edit).pack(side="right")
         combo.pack(side="left", fill=tk.X, expand=True)
         self.combo = combo
         self.edit_method = edit_method
@@ -426,4 +501,4 @@ class ComboEditFrame(ttk.Frame):
                 old_data=object_,
             )
         else:
-            Messagebox.show_error("Empty list!", "Select atleast one item!")
+            self.backend.message_box().show_error("Empty list!", "Select atleast one item!")
