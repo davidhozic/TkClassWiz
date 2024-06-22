@@ -1,4 +1,4 @@
-from typing import TypeVar
+from typing import TypeVar, Any
 from enum import Flag
 
 from ..doc import doc_category
@@ -12,7 +12,6 @@ from ..storage import *
 from .frame_base import *
 
 import tkinter as tk
-import tkinter.ttk as ttk
 
 
 __all__ = ("NewObjectFrameFlag",)
@@ -45,7 +44,7 @@ class NewObjectFrameFlag(NewObjectFrameBase):
         self,
         class_: Flag,
         return_widget: T,
-        parent: tk.Toplevel = None,
+        parent: Any = None,
         old_data: Flag = None,
         check_parameters: bool = True,
         allow_save=True
@@ -54,26 +53,25 @@ class NewObjectFrameFlag(NewObjectFrameBase):
 
         dpi_5 = dpi_scaled(5)
         dpi_10 = dpi_scaled(5)
-        ttk.Label(self.frame_main, text="Current value").pack(anchor=tk.W)
+        self.backend.label(self.frame_main, text="Current value").pack(anchor=tk.W)
         w = PyObjectScalar(self.frame_main)
         w.pack(fill=tk.X, pady=dpi_5)
 
-        ttk.Separator(self.frame_main).pack(fill=tk.X, pady=dpi_10)
+        self.backend.separator(self.frame_main).pack(fill=tk.X, pady=dpi_10)
 
-        ttk.Label(self.frame_main, text="Modify").pack(anchor=tk.W)
+        self.backend.label(self.frame_main, text="Modify").pack(anchor=tk.W)
         combo_select = ComboBoxObjects(self.frame_main, width=max(map(len, map(str, list(class_)))))
         combo_select["values"] = list(class_)
         combo_select.pack(anchor=tk.W, pady=dpi_5)
-        bnt_add_flag = ttk.Button(self.frame_main, text="Add flag", command=lambda: self._update_flag(combo_select.get(), True))
+        bnt_add_flag = self.backend.button(self.frame_main, text="Add flag", command=lambda: self._update_flag(combo_select.get(), True))
         bnt_add_flag.pack(anchor=tk.W)
-        bnt_remove_flag = ttk.Button(self.frame_main, text="Remove flag", command=lambda: self._update_flag(combo_select.get(), False))
+        bnt_remove_flag = self.backend.button(self.frame_main, text="Remove flag", command=lambda: self._update_flag(combo_select.get(), False))
         bnt_remove_flag.pack(anchor=tk.W)
 
         self.storage_widget = w
-
         if old_data is not None:
             self.load(old_data)
-        
+
         self.remember_gui_data()
 
     @gui_except()

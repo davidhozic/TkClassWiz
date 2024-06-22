@@ -15,7 +15,6 @@ from .frame_base import *
 from ..storage import *
 
 import tkinter as tk
-import tkinter.ttk as ttk
 
 
 __all__ = (
@@ -71,24 +70,24 @@ class NewObjectFrameIterable(NewObjectFrameBase):
         self.storage_widget = w = ListBoxScrolled(self.frame_main, height=20)
         ListboxTooltip(self.storage_widget, 0)
 
-        frame_edit_remove = ttk.Frame(self.frame_main, padding=(dpi_5, 0))
+        frame_edit_remove = self.backend.frame(self.frame_main, padding=(dpi_5, 0))
         frame_edit_remove.pack(side="right")
-        frame_cp = ttk.Frame(frame_edit_remove)
+        frame_cp = self.backend.frame(frame_edit_remove)
         frame_cp.pack(fill=tk.X, expand=True, pady=dpi_5)
 
-        ttk.Button(frame_cp, text="Copy", command=w.save_to_clipboard).pack(side="left", fill=tk.X, expand=True)
-        ttk.Button(frame_cp, text="Paste", command=w.paste_from_clipboard).pack(side="left", fill=tk.X, expand=True)
-        menubtn = ttk.Menubutton(frame_edit_remove, text="Insert item")
-        menu = tk.Menu(menubtn)
+        self.backend.button(frame_cp, text="Copy", command=w.save_to_clipboard).pack(side="left", fill=tk.X, expand=True)
+        self.backend.button(frame_cp, text="Paste", command=w.paste_from_clipboard).pack(side="left", fill=tk.X, expand=True)
+        menubtn = self.backend.menu_button(frame_edit_remove, text="Insert item")
+        menu = self.backend.menu(menubtn)
         menubtn.configure(menu=menu)
         menubtn.pack(fill=tk.X)
-        ttk.Button(frame_edit_remove, text="Remove", command=w.delete_selected).pack(fill=tk.X)
-        ttk.Button(frame_edit_remove, text="Edit", command=lambda: self._edit_selected()).pack(fill=tk.X)
+        self.backend.button(frame_edit_remove, text="Remove", command=w.delete_selected).pack(fill=tk.X)
+        self.backend.button(frame_edit_remove, text="Edit", command=lambda: self._edit_selected()).pack(fill=tk.X)
 
-        frame_up_down = ttk.Frame(frame_edit_remove)
+        frame_up_down = self.backend.frame(frame_edit_remove)
         frame_up_down.pack(fill=tk.X, expand=True, pady=dpi_5)
-        ttk.Button(frame_up_down, text="Up", command=lambda: w.move_selection(-1)).pack(side="left", fill=tk.X, expand=True)
-        ttk.Button(frame_up_down, text="Down", command=lambda: w.move_selection(1)).pack(side="left", fill=tk.X, expand=True)
+        self.backend.button(frame_up_down, text="Up", command=lambda: w.move_selection(-1)).pack(side="left", fill=tk.X, expand=True)
+        self.backend.button(frame_up_down, text="Down", command=lambda: w.move_selection(1)).pack(side="left", fill=tk.X, expand=True)
 
         self._list_args = get_args(self.class_)
         args_normal = []
@@ -101,7 +100,7 @@ class NewObjectFrameIterable(NewObjectFrameBase):
 
         self._create_add_menu(args_normal, menu)
         if args_depr:
-            menu_depr = tk.Menu()
+            menu_depr = self.backend.menu()
             self._create_add_menu(args_depr, menu_depr)
             menu.add_cascade(label=">Deprecated", menu=menu_depr)
 
@@ -112,7 +111,7 @@ class NewObjectFrameIterable(NewObjectFrameBase):
 
         self.remember_gui_data()
 
-    def _create_add_menu(self, args: list, menu: tk.Menu):
+    def _create_add_menu(self, args: list, menu: Any):
         insert_items = []
         widget = self.storage_widget
         for arg in args:
@@ -132,7 +131,7 @@ class NewObjectFrameIterable(NewObjectFrameBase):
                 )
 
         if insert_items:
-            menu_insert = tk.Menu(menu)
+            menu_insert = self.backend.menu(menu)
             for item in insert_items:
                 if item is Ellipsis:
                     menu_insert.add_separator()
@@ -180,12 +179,12 @@ class NewObjectFrameIterableView(NewObjectFrameIterable):
         self.storage_widget = w = ListBoxScrolled(self.frame_main, height=20)
         ListboxTooltip(self.storage_widget, 0)
 
-        frame_edit_remove = ttk.Frame(self.frame_main, padding=(dpi_5, 0))
+        frame_edit_remove = self.backend.frame(self.frame_main, padding=(dpi_5, 0))
         frame_edit_remove.pack(side="right")
-        frame_cp = ttk.Frame(frame_edit_remove)
+        frame_cp = self.backend.frame(frame_edit_remove)
         frame_cp.pack(fill=tk.X, expand=True, pady=dpi_5)
 
-        ttk.Button(frame_edit_remove, text="View", command=lambda: self._edit_selected()).pack(fill=tk.X)
+        self.backend.button(frame_edit_remove, text="View", command=lambda: self._edit_selected()).pack(fill=tk.X)
         w.pack(side="left", fill=tk.BOTH, expand=True)
 
         if old_data is not None:

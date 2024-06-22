@@ -91,6 +91,8 @@ class NewObjectFrameBase(ABC):
         "The index of object being edited"
 
         self.frame = self.backend.frame(master=parent)
+        "Main tkinter-like frame for widget. Composition instead of inheritance to support multiple backends"
+
         self.init_toolbar_frame(class_)
         self.init_main_frame()
 
@@ -208,11 +210,11 @@ class NewObjectFrameBase(ABC):
 
     def update_window_title(self):
         "Set's the window title according to edit context."
-        self.origin_window.title(f"{'New' if self.old_gui_data is None else 'Edit'} {self.get_cls_name(self.class_, True)} object")
+        self.origin_window.toplevel.title(f"{'New' if self.old_gui_data is None else 'Edit'} {self.get_cls_name(self.class_, True)} object")
 
     def close_frame(self):
         if self.allow_save and self.modified:
-            resp = self.backend.message_box().yesnocancel("Save?", "Do you wish to save?", master=self.origin_window)
+            resp = self.backend.message_box().yesnocancel("Save?", "Do you wish to save?", master=self.origin_window.toplevel)
             if resp is not None:
                 if resp:
                     self.save()
@@ -271,7 +273,7 @@ class NewObjectFrameBase(ABC):
             self.backend.message_box().show_error(
                 "Saving error",
                 f"Could not save the object.\n{exc}",
-                parent=self.origin_window
+                parent=self.origin_window.toplevel
             )
 
     def remember_gui_data(self):

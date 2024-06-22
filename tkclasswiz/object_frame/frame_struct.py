@@ -17,9 +17,6 @@ from .frame_base import *
 from .tooltip import ComboboxTooltip
 
 import tkinter as tk
-import tkinter.ttk as ttk
-import tkinter.filedialog as tkfile
-
 import inspect
 import copy
 import json
@@ -85,7 +82,7 @@ class NewObjectFrameStruct(NewObjectFrameBase):
         # Template
         @gui_except(window=self)
         def save_template():
-            filename = tkfile.asksaveasfilename(filetypes=[("JSON", "*.json")], parent=self)
+            filename = self.backend.file_dialog().asksaveasfilename(filetypes=[("JSON", "*.json")], parent=self)
             if filename == "":
                 return
 
@@ -101,7 +98,7 @@ class NewObjectFrameStruct(NewObjectFrameBase):
 
         @gui_except(window=self)
         def load_template():
-            filename = tkfile.askopenfilename(filetypes=[("JSON", "*.json")], parent=self)
+            filename = self.backend.file_dialog().askopenfilename(filetypes=[("JSON", "*.json")], parent=self)
             if filename == "":
                 return
 
@@ -117,8 +114,8 @@ class NewObjectFrameStruct(NewObjectFrameBase):
 
                 self.load(object_info)
 
-        bnt_menu_template = ttk.Menubutton(self.frame_toolbar, text="Template")
-        menu = tk.Menu(bnt_menu_template)
+        bnt_menu_template = self.backend.menu_button(self.frame_toolbar, text="Template")
+        menu = self.backend.menu(bnt_menu_template)
         menu.add_command(label="Load template", command=load_template)
         menu.add_command(label="Save template", command=save_template)
         bnt_menu_template.configure(menu=menu)
@@ -137,8 +134,8 @@ class NewObjectFrameStruct(NewObjectFrameBase):
 
         self._create_fields(annotations, additional_values, self.frame_main)
         if annotations_depr:
-            ttk.Separator(self.frame_main).pack(fill=tk.X, pady=dpi_5)
-            ttk.Label(self.frame_main, text="Deprecated", font=("TkDefaultFont", 10)).pack(anchor=tk.W)
+            self.backend.separator(self.frame_main).pack(fill=tk.X, pady=dpi_5)
+            self.backend.label(self.frame_main, text="Deprecated", font=("TkDefaultFont", 10)).pack(anchor=tk.W)
             self._create_fields(annotations_depr, additional_values, self.frame_main)
 
         if old_data is not None:  # Edit
@@ -146,11 +143,11 @@ class NewObjectFrameStruct(NewObjectFrameBase):
 
         self.remember_gui_data()
 
-    def _create_fields(self, annotations: dict[str, type], additional_values: dict, frame: ttk.Frame):
+    def _create_fields(self, annotations: dict[str, type], additional_values: dict, frame):
         dpi_5 = dpi_scaled(5)
         dpi_5h = dpi_5 // 2
 
-        labels: list[ttk.Label] = []
+        labels: list = []
 
         # Get parameters with default values.
         # This is used for adding an asterisk to parameters without a default (mandatory parameters).
@@ -160,14 +157,14 @@ class NewObjectFrameStruct(NewObjectFrameBase):
         for (k, v) in annotations.items():
             # Init widgets
             entry_types = convert_types(v)
-            frame_annotated = ttk.Frame(frame)
+            frame_annotated = self.backend.frame(frame)
             frame_annotated.pack(fill=tk.BOTH, expand=True, pady=dpi_5)
 
             text = k
             if k not in param_defaults:  # Parameter is mandatory
                 text = f'* {text}'
 
-            label = ttk.Label(frame_annotated, text=text)
+            label = self.backend.label(frame_annotated, text=text)
             labels.append(label)
             label.pack(side="left")
 
@@ -176,8 +173,8 @@ class NewObjectFrameStruct(NewObjectFrameBase):
             w = combo = ComboBoxObjects(frame_annotated)
             ComboboxTooltip(w)
 
-            bnt_new_menu = ttk.Menubutton(frame_annotated, text="New")
-            menu_new = tk.Menu(bnt_new_menu)
+            bnt_new_menu = self.backend.menu_button(frame_annotated, text="New")
+            menu_new = self.backend.menu(bnt_new_menu)
             bnt_new_menu.configure(menu=menu_new)
 
             deprecated_param_types = set(t for t in entry_types if is_deprecated(self.class_, k, t))
@@ -185,7 +182,7 @@ class NewObjectFrameStruct(NewObjectFrameBase):
             any_filled = self._fill_field_values(k, normal_types, menu_new, combo, additional_values)
 
             if deprecated_param_types:
-                menu_depr = tk.Menu(menu_new)
+                menu_depr = self.backend.menu(menu_new)
                 menu_new.add_cascade(label=">Deprecated", menu=menu_depr)
                 any_filled = self._fill_field_values(
                     k,
@@ -195,15 +192,15 @@ class NewObjectFrameStruct(NewObjectFrameBase):
                     additional_values
                 ) or any_filled
 
-            bnt_edit = ttk.Button(
+            bnt_edit = self.backend.button(
                 frame_annotated,
                 text="🖋️",
                 width=3,
                 command=partial(self._edit_selected, k, w)
             )
 
-            bnt_copy_paste = ttk.Menubutton(frame_annotated, text="C/P")
-            copy_menu = tk.Menu(bnt_copy_paste)
+            bnt_copy_paste = self.backend.menu_button(frame_annotated, text="C/P")
+            copy_menu = self.backend.menu(bnt_copy_paste)
             copy_menu.add_command(label="Copy", command=combo.save_to_clipboard)
             copy_menu.add_command(label="Paste", command=combo.paste_from_clipboard)
             bnt_copy_paste.configure(menu=copy_menu)
@@ -225,7 +222,7 @@ class NewObjectFrameStruct(NewObjectFrameBase):
         self,
         k: str,
         entry_types: list,
-        menu: tk.Menu,
+        menu,
         combo: ComboBoxObjects,
         additional_values: dict
     ):

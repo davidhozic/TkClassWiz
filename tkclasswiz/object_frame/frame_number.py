@@ -6,7 +6,6 @@ from ..extensions import extendable
 from ..doc import doc_category
 
 import tkinter as tk
-import tkinter.ttk as ttk
 
 
 __all__ = (
@@ -46,7 +45,7 @@ class NewObjectFrameNumber(NewObjectFrameBase):
         allow_save: bool = True
     ):
         super().__init__(class_, return_widget, parent, old_data, check_parameters, allow_save)
-        self.storage_widget = ttk.Spinbox(self.frame_main, from_=-9999, to=9999)
+        self.storage_widget = self.backend.spinbox(self.frame_main, from_=-9999, to=9999)
         self.storage_widget.pack(fill=tk.X)
 
         if old_data is not None:  # Edit

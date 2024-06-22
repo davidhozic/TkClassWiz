@@ -12,10 +12,10 @@ from .frame_flag import *
 
 from ..utilities import gui_except, issubclass_noexcept
 from ..extensions import extendable
+from ..backend import get_backend
 from ..doc import doc_category
 from ..dpi import dpi_scaled
 
-import tkinter.ttk as ttk
 import tkinter as tk
 
 
@@ -26,40 +26,40 @@ __all__ = (
 
 @extendable
 @doc_category("Object window")
-class ObjectEditWindow(tk.Toplevel):
+class ObjectEditWindow:
     """
     Top level window for creating and editing new objects.
     """
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        self.backend = backend = get_backend()
+        self.toplevel = backend.toplevel(*args, **kwargs)
         self._closed = False
-
         dpi_5 = dpi_scaled(5)
 
         # Elements
         self.opened_frames: list[NewObjectFrameBase] = []
-        self.frame_main = ttk.Frame(self, padding=(dpi_5, dpi_5))
-        self.frame_toolbar = ttk.Frame(self, padding=(dpi_5, dpi_5))
-        ttk.Button(self.frame_toolbar, text="Close", command=self.close_object_edit_frame).pack(side="left")
-        ttk.Button(self.frame_toolbar, text="Save", command=self.save_object_edit_frame).pack(side="left")
+        self.frame_main = backend.frame(self.toplevel, padding=(dpi_5, dpi_5))
+        self.frame_toolbar = backend.frame(self.toplevel, padding=(dpi_5, dpi_5))
+        backend.button(self.frame_toolbar, text="Close", command=self.close_object_edit_frame).pack(side="left")
+        backend.button(self.frame_toolbar, text="Save", command=self.save_object_edit_frame).pack(side="left")
 
         self.frame_toolbar.pack(expand=False, fill=tk.X)
         self.frame_main.pack(expand=True, fill=tk.BOTH)
         self.frame_main.rowconfigure(0, weight=1)
         self.frame_main.columnconfigure(0, weight=1)
 
-        var = tk.BooleanVar(value=True)
-        ttk.Checkbutton(
+        var = backend.boolean_var(value=True)
+        backend.checkbutton(
             self.frame_toolbar,
             text="Keep on top",
             variable=var,
             command=lambda: self.attributes("-topmost", var.get()),
         ).pack(side="right")
-        self.attributes("-topmost", var.get())
+        self.toplevel.attributes("-topmost", var.get())
 
         # Window initialization
         NewObjectFrameBase.set_origin_window(self)
-        self.protocol("WM_DELETE_WINDOW", self.close_object_edit_frame)
+        self.toplevel.protocol("WM_DELETE_WINDOW", self.close_object_edit_frame)
 
     @property
     def closed(self) -> bool:
@@ -94,7 +94,7 @@ class ObjectEditWindow(tk.Toplevel):
         """
         frame = self._create_and_add_frame(class_, return_widget, old_data, check_parameters, allow_save, kwargs)
         if frame is None and not self.opened_frames:
-            self.destroy()
+            self.toplevel.destroy()
             self._closed = True
 
     @gui_except()
@@ -159,9 +159,9 @@ class ObjectEditWindow(tk.Toplevel):
             self.set_default_size_y()
         else:
             self._closed = True
-            self.destroy()
+            self.toplevel.destroy()
 
     def set_default_size_y(self):
         "Sets window Y size to default"
-        self.update()
-        self.geometry(f"{self.winfo_width()}x{self.winfo_reqheight()}")
+        self.toplevel.update()
+        self.toplevel.geometry(f"{self.toplevel.winfo_width()}x{self.toplevel.winfo_reqheight()}")
