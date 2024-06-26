@@ -190,12 +190,12 @@ class NewObjectFrameBase(ABC):
         return value
 
     def init_main_frame(self):
-        frame_main = self.backend.frame(self.frame)
+        frame_main = self.backend.frame(master=self.frame)
         frame_main.pack(expand=True, fill=tk.BOTH)
         self.frame_main = frame_main
 
     def init_toolbar_frame(self, class_):
-        frame_toolbar = self.backend.frame(self.frame)
+        frame_toolbar = self.backend.frame(master=self.frame)
         frame_toolbar.pack(fill=tk.X)
         self.frame_toolbar = frame_toolbar
 

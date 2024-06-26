@@ -30,18 +30,18 @@ class ObjectEditWindow:
     """
     Top level window for creating and editing new objects.
     """
-    def __init__(self, *args, **kwargs):
+    def __init__(self, **kwargs):
         self.backend = backend = get_backend()
-        self.toplevel = backend.toplevel(*args, **kwargs)
+        self.toplevel = backend.toplevel(**kwargs)
         self._closed = False
         dpi_5 = dpi_scaled(5)
 
         # Elements
         self.opened_frames: list[NewObjectFrameBase] = []
-        self.frame_main = backend.frame(self.toplevel, padding=(dpi_5, dpi_5))
-        self.frame_toolbar = backend.frame(self.toplevel, padding=(dpi_5, dpi_5))
-        backend.button(self.frame_toolbar, text="Close", command=self.close_object_edit_frame).pack(side="left")
-        backend.button(self.frame_toolbar, text="Save", command=self.save_object_edit_frame).pack(side="left")
+        self.frame_main = backend.frame(master=self.toplevel, padding=(dpi_5, dpi_5))
+        self.frame_toolbar = backend.frame(master=self.toplevel, padding=(dpi_5, dpi_5))
+        backend.button(master=self.frame_toolbar, text="Close", command=self.close_object_edit_frame).pack(side="left")
+        backend.button(master=self.frame_toolbar, text="Save", command=self.save_object_edit_frame).pack(side="left")
 
         self.frame_toolbar.pack(expand=False, fill=tk.X)
         self.frame_main.pack(expand=True, fill=tk.BOTH)
@@ -50,7 +50,7 @@ class ObjectEditWindow:
 
         var = backend.boolean_var(value=True)
         backend.checkbutton(
-            self.frame_toolbar,
+            master=self.frame_toolbar,
             text="Keep on top",
             variable=var,
             command=lambda: self.toplevel.attributes("-topmost", var.get()),
@@ -97,7 +97,7 @@ class ObjectEditWindow:
             self.toplevel.destroy()
             self._closed = True
 
-    @gui_except('toplevel')
+    # @gui_except('toplevel')
     def _create_and_add_frame(
         self,
         class_: type,

@@ -41,4 +41,5 @@ from .extensions import *
 from .utilities import *
 from .aliasing import *
 from .deprecation import *
-from .backend import get_backend
+from .backend import *
+

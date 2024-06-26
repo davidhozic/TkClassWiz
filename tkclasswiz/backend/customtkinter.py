@@ -1,5 +1,5 @@
 """
-Tkinter backend for TkClassWizard.
+CustomTkinter backend for TkClassWizard.
 """
 from typing import Union, List, Any, Callable
 from contextlib import suppress
@@ -9,12 +9,14 @@ from ..utilities import gui_confirm_action
 from ..doc import doc_category
 from .base import BackendBase
 
+import tkinter.ttk as ttk
 import tkinter.messagebox as messagebox
 import tkinter.filedialog as filedialog
-import tkinter.ttk as ttk
 import tkinter as tk
+import customtkinter as ctk
 import pickle
 import base64
+
 
 
 class Messagebox:
@@ -44,59 +46,14 @@ class Messagebox:
 
 
 @doc_category("Storage widgets")
-class HintedEntry(ttk.Entry):
-    """
-    A hinted tkinter.ttk.Entry.
-    The entry accepts the parameter ``hint`` (The hinting text which will be displayed in gray)
-    and the original tkinter.ttk.Entry parameters.
-    """
-    def __init__(self, hint: str, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.hint = hint
-        self._set_hint()
-        self.bind("<FocusIn>", self._focus_in)
-        self.bind("<FocusOut>", self._focus_out)
-
-    def get(self) -> str:
-        if str(self["foreground"]) == "gray":
-            return ''
-
-        return super().get()
-
-    def insert(self, *args, **kwargs) -> None:
-        state = self.cget("state")
-        self.configure(state="enabled")
-        if str(self["foreground"]) == "gray":
-            self.delete('0', tk.END)
-
-        _ret = super().insert(*args, **kwargs)
-        self["foreground"] = "black"
-        self.configure(state=state)
-        return _ret
-
-    def _set_hint(self):
-        self.insert('0', self.hint)
-        self["foreground"] = "gray"
-
-    def _focus_in(self, event: tk.Event):
-        if str(self["foreground"]) == "gray":
-            self["foreground"] = 'black'
-            self.delete('0', tk.END)
-
-    def _focus_out(self, event: tk.Event):
-        if not super().get():
-            self._set_hint()
-
-
-@doc_category("Storage widgets")
-class PyObjectScalar(ttk.Frame):
+class PyObjectScalar(ctk.CTkFrame):
     """
     Represents a single storage widget for a Python object.
     """
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
+    def __init__(self, **kwargs) -> None:
+        super().__init__(**kwargs)
         self.element = None
-        self.display = ttk.Entry(self, state="readonly")
+        self.display = ctk.CTkEntry(self, state="readonly")
         self.display.pack(fill=tk.BOTH, expand=True)
 
     def get(self) -> object:
@@ -289,7 +246,7 @@ class ListBoxObjects(tk.Listbox):
 
 
 @doc_category("Storage widgets")
-class ListBoxScrolled(ttk.Frame):
+class ListBoxScrolled(ctk.CTkFrame):
     """
     A scrollable version of :class:`tkclasswiz.storage.ListBoxObjects`.
     All the methods are the same as :class:`tkclasswiz.storage.ListBoxObjects`.
@@ -455,8 +412,22 @@ class ComboEditFrame(ttk.Frame):
             Messagebox.show_error("Empty list!", "Select atleast one item!")
 
 
+class FrameWrapper(ctk.CTkFrame):
+    def __init__(self, padding=None, **kwargs):
+        super().__init__(**kwargs)
+        self.padding = padding
 
-class BackendTkinter(BackendBase):
+    def pack(self, **kwargs):
+        padding = self.padding or (kwargs.get("padx", 0), kwargs.get("pady", 0))
+        if padding is None:
+            padding = (0, 0)
+
+        kwargs["padx"] = padding[0]
+        kwargs["pady"] = padding[1]
+        super().pack(**kwargs)
+
+
+class BackendCustomTkinter(BackendBase):
     def message_box(self):
         return Messagebox
 
@@ -464,19 +435,22 @@ class BackendTkinter(BackendBase):
         return filedialog
 
     def frame(self, **kwargs):
-        return ttk.Frame(**kwargs)
+        return FrameWrapper(**kwargs)
 
     def label(self, **kwargs):
-        return ttk.Label(**kwargs)
+        if "style" in kwargs:
+            del kwargs["style"]
+
+        return ctk.CTkLabel(**kwargs)
 
     def separator(self, **kwargs):
         return ttk.Separator(**kwargs)
 
     def button(self, **kwargs):
-        return ttk.Button(**kwargs)
+        return ctk.CTkButton(**kwargs)
 
     def menu_button(self, **kwargs):
-        return ttk.Menubutton(**kwargs)
+        return tk.Menubutton(**kwargs)
 
     def menu(self, **kwargs):
         return tk.Menu(**kwargs)
@@ -502,8 +476,9 @@ class BackendTkinter(BackendBase):
     def scrollbar(self, **kwargs):
         return ttk.Scrollbar(**kwargs)
 
-    def hinted_entry(self, hint, **kwargs):
-        return HintedEntry(hint, **kwargs)
+    def hinted_entry(self, **kwargs):
+        hint = kwargs.pop("hint")
+        return ctk.CTkEntry(**kwargs, placeholder_text=hint)
 
     def object_scalar(self, **kwargs):
         return PyObjectScalar(**kwargs)

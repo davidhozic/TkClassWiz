@@ -18,12 +18,12 @@ class BaseToolTip(ABC):
         timeout_ms: int = 500,
     ):
         self.backend = get_backend()
-        self.toplevel = self.backend.toplevel(widget)
+        self.toplevel = self.backend.toplevel(master=widget)
         self.backend.style().configure(
             style="tooltip.TLabel",  # ttkbootstrap compatibility
             background="white",
         )
-        self.label = self.backend.label(self.toplevel, style="tooltip.TLabel", wraplength=1000)
+        self.label = self.backend.label(master=self.toplevel, style="tooltip.TLabel", wraplength=1000)
         self.schedule_id = None
         self._widget = widget
         self.timeout_ms = timeout_ms
@@ -37,7 +37,7 @@ class BaseToolTip(ABC):
         if not (value := self._get_value()):
             return
 
-        self.label.config(text=str(value)[:3000])
+        self.label.configure(text=str(value)[:3000])
         if self.timeout_ms:
             self.schedule_id = self.toplevel.after(self.timeout_ms, lambda: self._show_tooltip(event))
         else:

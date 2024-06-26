@@ -50,19 +50,19 @@ class NewObjectFrameFlag(NewObjectFrameBase):
 
         dpi_5 = dpi_scaled(5)
         dpi_10 = dpi_scaled(5)
-        self.backend.label(self.frame_main, text="Current value").pack(anchor=tk.W)
-        w = self.backend.object_scalar(self.frame_main)
+        self.backend.label(master=self.frame_main, text="Current value").pack(anchor=tk.W)
+        w = self.backend.object_scalar(master=self.frame_main)
         w.pack(fill=tk.X, pady=dpi_5)
 
-        self.backend.separator(self.frame_main).pack(fill=tk.X, pady=dpi_10)
+        self.backend.separator(master=self.frame_main).pack(fill=tk.X, pady=dpi_10)
 
-        self.backend.label(self.frame_main, text="Modify").pack(anchor=tk.W)
-        combo_select = self.backend.combobox(self.frame_main, width=max(map(len, map(str, list(class_)))))
+        self.backend.label(master=self.frame_main, text="Modify").pack(anchor=tk.W)
+        combo_select = self.backend.combobox(master=self.frame_main, width=max(map(len, map(str, list(class_)))))
         combo_select.set_values(list(class_))
         combo_select.pack(anchor=tk.W, pady=dpi_5)
-        bnt_add_flag = self.backend.button(self.frame_main, text="Add flag", command=lambda: self._update_flag(combo_select.get(), True))
+        bnt_add_flag = self.backend.button(master=self.frame_main, text="Add flag", command=lambda: self._update_flag(combo_select.get(), True))
         bnt_add_flag.pack(anchor=tk.W)
-        bnt_remove_flag = self.backend.button(self.frame_main, text="Remove flag", command=lambda: self._update_flag(combo_select.get(), False))
+        bnt_remove_flag = self.backend.button(master=self.frame_main, text="Remove flag", command=lambda: self._update_flag(combo_select.get(), False))
         bnt_remove_flag.pack(anchor=tk.W)
 
         self.storage_widget = w

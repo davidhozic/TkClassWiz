@@ -2,6 +2,7 @@
 Backend package.
 Allows different libraries to work with TkClassWizard.
 """
+from .customtkinter import BackendCustomTkinter
 from .tkinter import BackendTkinter
 from .base import BackendBase
 
@@ -10,7 +11,8 @@ __all__ = ("set_backend", "get_backend")
 
 
 BACKEND_MAP = {
-    "tkinter": BackendTkinter
+    "customtkinter": BackendCustomTkinter,
+    "tkinter": BackendTkinter,
 }
 
 class GLOBAL:

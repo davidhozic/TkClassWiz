@@ -112,8 +112,8 @@ class NewObjectFrameStruct(NewObjectFrameBase):
 
                 self.load(object_info)
 
-        bnt_menu_template = self.backend.menu_button(self.frame_toolbar, text="Template")
-        menu = self.backend.menu(bnt_menu_template)
+        bnt_menu_template = self.backend.menu_button(master=self.frame_toolbar, text="Template")
+        menu = self.backend.menu(master=bnt_menu_template)
         menu.add_command(label="Load template", command=load_template)
         menu.add_command(label="Save template", command=save_template)
         bnt_menu_template.configure(menu=menu)
@@ -121,8 +121,8 @@ class NewObjectFrameStruct(NewObjectFrameBase):
 
         # Nickname entry
         self.entry_nick = self.backend.hinted_entry(
-            "Object nickname",
-            self.frame_main,
+            hint="Object nickname",
+            master=self.frame_main,
             state="normal" if self.allow_save else "disabled"
         )
         self.entry_nick.pack(anchor=tk.W, padx=dpi_5_h, pady=dpi_5)
@@ -132,8 +132,8 @@ class NewObjectFrameStruct(NewObjectFrameBase):
 
         self._create_fields(annotations, additional_values, self.frame_main)
         if annotations_depr:
-            self.backend.separator(self.frame_main).pack(fill=tk.X, pady=dpi_5)
-            self.backend.label(self.frame_main, text="Deprecated", font=("TkDefaultFont", 10)).pack(anchor=tk.W)
+            self.backend.separator(master=self.frame_main).pack(fill=tk.X, pady=dpi_5)
+            self.backend.label(master=self.frame_main, text="Deprecated", font=("TkDefaultFont", 10)).pack(anchor=tk.W)
             self._create_fields(annotations_depr, additional_values, self.frame_main)
 
         if old_data is not None:  # Edit
@@ -155,24 +155,24 @@ class NewObjectFrameStruct(NewObjectFrameBase):
         for (k, v) in annotations.items():
             # Init widgets
             entry_types = convert_types(v)
-            frame_annotated = self.backend.frame(frame)
+            frame_annotated = self.backend.frame(master=frame)
             frame_annotated.pack(fill=tk.BOTH, expand=True, pady=dpi_5)
 
             text = k
             if k not in param_defaults:  # Parameter is mandatory
                 text = f'* {text}'
 
-            label = self.backend.label(frame_annotated, text=text)
+            label = self.backend.label(master=frame_annotated, text=text)
             labels.append(label)
             label.pack(side="left")
 
             # Storage widget with the tooltip for displaying
             # nicknames on ObjectInfo instances
-            w = combo = self.backend.combobox(frame_annotated)
+            w = combo = self.backend.combobox(master=frame_annotated)
             ComboboxTooltip(w)
 
-            bnt_new_menu = self.backend.menu_button(frame_annotated, text="New")
-            menu_new = self.backend.menu(bnt_new_menu)
+            bnt_new_menu = self.backend.menu_button(master=frame_annotated, text="New")
+            menu_new = self.backend.menu(master=bnt_new_menu)
             bnt_new_menu.configure(menu=menu_new)
 
             deprecated_param_types = set(t for t in entry_types if is_deprecated(self.class_, k, t))
@@ -180,7 +180,7 @@ class NewObjectFrameStruct(NewObjectFrameBase):
             any_filled = self._fill_field_values(k, normal_types, menu_new, combo, additional_values)
 
             if deprecated_param_types:
-                menu_depr = self.backend.menu(menu_new)
+                menu_depr = self.backend.menu(master=menu_new)
                 menu_new.add_cascade(label=">Deprecated", menu=menu_depr)
                 any_filled = self._fill_field_values(
                     k,
@@ -191,14 +191,14 @@ class NewObjectFrameStruct(NewObjectFrameBase):
                 ) or any_filled
 
             bnt_edit = self.backend.button(
-                frame_annotated,
+                master=frame_annotated,
                 text="🖋️",
                 width=3,
                 command=partial(self._edit_selected, k, w)
             )
 
-            bnt_copy_paste = self.backend.menu_button(frame_annotated, text="C/P")
-            copy_menu = self.backend.menu(bnt_copy_paste)
+            bnt_copy_paste = self.backend.menu_button(master=frame_annotated, text="C/P")
+            copy_menu = self.backend.menu(master=bnt_copy_paste)
             copy_menu.add_command(label="Copy", command=combo.save_to_clipboard)
             copy_menu.add_command(label="Paste", command=combo.paste_from_clipboard)
             bnt_copy_paste.configure(menu=copy_menu)
@@ -214,7 +214,7 @@ class NewObjectFrameStruct(NewObjectFrameBase):
 
         max_width = max(label.winfo_reqwidth() for label in labels) // 5
         for label in labels:
-            label.config(width=max_width)
+            label.configure(width=max_width)
 
     def _fill_field_values(
         self,

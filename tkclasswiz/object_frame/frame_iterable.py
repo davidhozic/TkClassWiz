@@ -65,27 +65,27 @@ class NewObjectFrameIterable(NewObjectFrameBase):
     ):
         dpi_5 = dpi_scaled(5)
         super().__init__(class_, return_widget, parent, old_data, check_parameters, allow_save)
-        self.storage_widget = w = self.backend.scrolled_listbox(self.frame_main, height=20)
+        self.storage_widget = w = self.backend.scrolled_listbox(master=self.frame_main, height=20)
         ListboxTooltip(self.storage_widget.listbox, 0)
 
-        frame_edit_remove = self.backend.frame(self.frame_main, padding=(dpi_5, 0))
+        frame_edit_remove = self.backend.frame(master=self.frame_main, padding=(dpi_5, 0))
         frame_edit_remove.pack(side="right")
-        frame_cp = self.backend.frame(frame_edit_remove)
+        frame_cp = self.backend.frame(master=frame_edit_remove)
         frame_cp.pack(fill=tk.X, expand=True, pady=dpi_5)
 
-        self.backend.button(frame_cp, text="Copy", command=w.save_to_clipboard).pack(side="left", fill=tk.X, expand=True)
-        self.backend.button(frame_cp, text="Paste", command=w.paste_from_clipboard).pack(side="left", fill=tk.X, expand=True)
-        menubtn = self.backend.menu_button(frame_edit_remove, text="Insert item")
-        menu = self.backend.menu(menubtn)
+        self.backend.button(master=frame_cp, text="Copy", command=w.save_to_clipboard).pack(side="left", fill=tk.X, expand=True)
+        self.backend.button(master=frame_cp, text="Paste", command=w.paste_from_clipboard).pack(side="left", fill=tk.X, expand=True)
+        menubtn = self.backend.menu_button(master=frame_edit_remove, text="Insert item")
+        menu = self.backend.menu(master=menubtn)
         menubtn.configure(menu=menu)
         menubtn.pack(fill=tk.X)
-        self.backend.button(frame_edit_remove, text="Remove", command=w.delete_selected).pack(fill=tk.X)
-        self.backend.button(frame_edit_remove, text="Edit", command=lambda: self._edit_selected()).pack(fill=tk.X)
+        self.backend.button(master=frame_edit_remove, text="Remove", command=w.delete_selected).pack(fill=tk.X)
+        self.backend.button(master=frame_edit_remove, text="Edit", command=lambda: self._edit_selected()).pack(fill=tk.X)
 
-        frame_up_down = self.backend.frame(frame_edit_remove)
+        frame_up_down = self.backend.frame(master=frame_edit_remove)
         frame_up_down.pack(fill=tk.X, expand=True, pady=dpi_5)
-        self.backend.button(frame_up_down, text="Up", command=lambda: w.move_selection(-1)).pack(side="left", fill=tk.X, expand=True)
-        self.backend.button(frame_up_down, text="Down", command=lambda: w.move_selection(1)).pack(side="left", fill=tk.X, expand=True)
+        self.backend.button(master=frame_up_down, text="Up", command=lambda: w.move_selection(-1)).pack(side="left", fill=tk.X, expand=True)
+        self.backend.button(master=frame_up_down, text="Down", command=lambda: w.move_selection(1)).pack(side="left", fill=tk.X, expand=True)
 
         self._list_args = get_args(self.class_)
         args_normal = []
@@ -129,7 +129,7 @@ class NewObjectFrameIterable(NewObjectFrameBase):
                 )
 
         if insert_items:
-            menu_insert = self.backend.menu(menu)
+            menu_insert = self.backend.menu(master=menu)
             for item in insert_items:
                 if item is Ellipsis:
                     menu_insert.add_separator()
@@ -174,15 +174,15 @@ class NewObjectFrameIterableView(NewObjectFrameIterable):
     def __init__(self, class_: Any, return_widget: Any, parent=None, old_data: list = None, check_parameters: bool = True, allow_save=True):
         dpi_5 = dpi_scaled(5)
         super(NewObjectFrameBase, self).__init__(class_, return_widget, parent, old_data, check_parameters, allow_save)
-        self.storage_widget = w = self.backend.scrolled_listbox(self.frame_main, height=20)
+        self.storage_widget = w = self.backend.scrolled_listbox(master=self.frame_main, height=20)
         ListboxTooltip(self.storage_widget.listbox, 0)
 
-        frame_edit_remove = self.backend.frame(self.frame_main, padding=(dpi_5, 0))
+        frame_edit_remove = self.backend.frame(master=self.frame_main, padding=(dpi_5, 0))
         frame_edit_remove.pack(side="right")
-        frame_cp = self.backend.frame(frame_edit_remove)
+        frame_cp = self.backend.frame(master=frame_edit_remove)
         frame_cp.pack(fill=tk.X, expand=True, pady=dpi_5)
 
-        self.backend.button(frame_edit_remove, text="View", command=lambda: self._edit_selected()).pack(fill=tk.X)
+        self.backend.button(master=frame_edit_remove, text="View", command=lambda: self._edit_selected()).pack(fill=tk.X)
         w.pack(side="left", fill=tk.BOTH, expand=True)
 
         if old_data is not None:
